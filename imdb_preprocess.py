@@ -24,11 +24,11 @@ reviews = []
 labels = []
 
 for elt in train_test:
-    print '==== going over', elt, 'set ===='
+    print('==== going over', elt, 'set ====')
     my_path = path_to_IMDB + elt + '\\'
     for p, pol in enumerate(neg_pos):
         review_names = os.listdir(my_path + pol + '\\')
-        print len(review_names), pol, 'reviews found'
+        print(len(review_names), pol, 'reviews found')
         counter = 0
         for review_name in review_names:
             # read .txt file
@@ -36,10 +36,10 @@ for elt in train_test:
                 reviews.append(my_file.read())
                 labels.append(p)
                 if counter % 1e3 == 0:
-                    print counter, '/', len(review_names), 'reviews read'
+                    print(counter, '/', len(review_names), 'reviews read')
                 counter += 1
 
-print len(reviews), 'reviews and', len(labels), 'labels assigned'
+print(len(reviews), 'reviews and', len(labels), 'labels assigned')
 
 # ========== clean reviews ==========
 
@@ -74,7 +74,7 @@ for rev in reviews:
     # save
     cleaned_reviews.append(tokens)
     if counter % 1e3 == 0:
-        print counter, '/', len(reviews), 'reviews cleaned'
+        print(counter, '/', len(reviews), 'reviews cleaned')
     counter += 1
 
 # get list of tokens from all reviews
@@ -107,7 +107,7 @@ for rev in cleaned_reviews:
         sublist.append(word_to_index[token])
     cleaned_reviews_integers.append(sublist)
     if counter % 1e4 == 0:
-        print counter, '/', len(reviews), 'reviews cleaned'
+        print(counter, '/', len(reviews), 'reviews cleaned')
     counter += 1
 
 # ========== split training/testing, shuffle, and save to disk ==========
@@ -146,4 +146,4 @@ with open(path_to_IMDB + 'test_labels.txt', 'wb') as my_file:
     for label in test_labels:
         my_file.write(str(label) + '\n')
 
-print 'all results saved to disk'
+print('all results saved to disk')
