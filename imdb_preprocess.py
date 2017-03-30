@@ -54,7 +54,7 @@ for rev in reviews:
     temp = BeautifulSoup(rev)
     text = temp.get_text()
     text = text.lower()
-    # replace punctuation with whitespace
+    # replace punctuation with whitespace. TODO: keep emoticons
     # note that we exclude apostrophes from our list of punctuation marks: we want to keep don't, shouldn't etc.
     text = re.sub(r'[()\[\]{}.,;:!?\<=>?@^_`~#$%"&*-]', ' ', text)
     # remove apostrophes that are not intra-word
