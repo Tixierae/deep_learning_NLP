@@ -16,7 +16,7 @@ from keras.layers import Convolution1D, GlobalMaxPooling1D, Dense, Embedding, In
 print('packages loaded')
 
 path_to_IMDB = ''
-use_pretrained = True
+use_pretrained = True # when using pre-trained embeddings, convergence is faster, and absolute accuracy is slightly greater (the margin is bigger when max_size is small)
 do_early_stopping = True
 model_save = False
 if model_save:
