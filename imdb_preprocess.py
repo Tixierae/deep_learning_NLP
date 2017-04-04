@@ -1,4 +1,4 @@
-# written by Antoine Tixier to go with the following handout:
+# goes with the following handout: http://www.lix.polytechnique.fr/~anti5662/intro_cnn_lstm_tixier.pdf
 # data initially taken from: http://ai.stanford.edu/~amaas/data/sentiment/
 
 import os
