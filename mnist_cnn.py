@@ -1,289 +1,184 @@
-# see companion handout for a theoretical intro: http://www.lix.polytechnique.fr/~anti5662/intro_cnn_lstm_tixier.pdf
-# gets to ~0.895 accuracy on the test set usually within 2 to 4 epochs (~160s per epoch on NVidia TITAN)
+# initially based on https://github.com/fchollet/keras/blob/master/examples/mnist_cnn.py
+
+# gets to ~0.9940 accuracy on test set after 12 epochs (~30s per epoch on NVidia GTX TITAN, 1060s per epoch on Intel i7)
 # tested on ubuntu with Python 3, Keras version 1.1.0., tensorflow backend
 
-import csv
-import json
+from keras.datasets import mnist
+from keras.layers import Dense, Dropout, Flatten, Input, Convolution2D, MaxPooling2D, Merge
+
+from keras.utils import np_utils
+from keras.models import Model
+
+#import matplotlib.pyplot as plt
 import numpy as np
 
-from gensim.models.word2vec import Word2Vec
+batch_size = 64
+num_classes = 10
+nb_epochs = 12
+nb_filters = 64
+my_optimizer = 'adadelta'
 
-from keras.models import Model
-from keras.callbacks import EarlyStopping
-from keras.constraints import maxnorm
-from keras.layers import Convolution1D, GlobalMaxPooling1D, Dense, Embedding, Input, Merge, Dropout
+# input image dimensions
+img_rows, img_cols = 28, 28
 
-print('packages loaded')
+# the data, shuffled and split between train and test sets
+(x_train, y_train), (x_test, y_test) = mnist.load_data()
 
-path_to_IMDB = ''
-use_pretrained = True
-do_early_stopping = True
-model_save = False
-if model_save:
-    name_save = 'imdb_cnn_pre_400_04_04_17'
-    print('model will be saved under name:',name_save)
+# 60,000 training examples - each is of size 28 by 28
+# Pixel values are 0 to 255. 0=white, 255=black 
+# plot 4 images as grey scale
+#plt.subplot(221)
+#plt.imshow(x_train[0], cmap=plt.get_cmap('gray_r'))
+#plt.subplot(222)
+#plt.imshow(x_train[1], cmap=plt.get_cmap('gray_r'))
+#plt.subplot(223)
+#plt.imshow(x_train[2], cmap=plt.get_cmap('gray_r'))
+#plt.subplot(224)
+#plt.imshow(x_train[3], cmap=plt.get_cmap('gray_r'))
+# show the plot
+#plt.show()
 
-# ========== parameter values ==========
+# In 2D, "channels_last" assumes (rows, cols, channels) while "channels_first" assumes (channels, rows, cols). 
 
-max_features = int(2e4)
-stpwd_thd = 10 # TODO: allow greater values than 1 - should be fixed now
-max_size = int(4e2)
-word_vector_dim = int(3e2)
-do_non_static = True
-nb_filters = 200
-drop_rate = 0.3
-batch_size = 32
-nb_epoch =  10 # increasing the number of epochs may lead to overfitting when max_size is small (especially since dataset is small in the 1st place)
-my_optimizer = 'adam' # proved better than SGD and Adadelta
-my_patience = 2 # for early stopping strategy
+# there is only one channel here (levels of grey), so we need to create a dim here
+# for color pictures we would have 3: RGB
 
-if not use_pretrained:
-    # if the embeddings are initialized randomly, using static mode doesn't make sense
-    do_non_static = True
-    print("not using pre-trained embeddings, overwriting 'do_non_static' argument")
+# input_shape=(128, 128, 3) for channel_last
 
-print('=== parameter values: ===')
-print('top',max_features,'words used as features')
-print('top',stpwd_thd,'words excluded')
-print('max size of doc (in words):',max_size)
-print('dim of word vectors:',word_vector_dim)
-print('non-static:',do_non_static)
-print('number of filters applied to each region:',nb_filters)
-print('dropout rate:',drop_rate)
-print('batch size:',batch_size)
-print('number of epochs:',nb_epoch)
-print('optimizer:',my_optimizer)
-print('patience:',my_patience)
-print('=== end parameter values ===')
+# option 'channels last'
+x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1)
+x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
+input_shape = (img_rows, img_cols, 1)	
 
-# ========== read pre-processed data ==========
+x_train = x_train.astype('float32')
+x_test = x_test.astype('float32')
 
-# dictionary of word indexes (sorted by decreasing frequency across the corpus)
-# this is a 1-based index - 0 is reserved for zero-padding
-with open(path_to_IMDB + 'word_to_index.json', 'r') as my_file:
-    word_to_index = json.load(my_file)
+my_max = np.amax(x_train)
 
-with open(path_to_IMDB + 'training.csv', 'r') as my_file:
-    reader = csv.reader(my_file, delimiter=',')
-    x_train = list(reader)
+x_train /= my_max # divide by 255 to have values between 0 and 1
+x_test /= my_max
 
-with open(path_to_IMDB + 'test.csv', 'r') as my_file:
-    reader = csv.reader(my_file, delimiter=',')
-    x_test = list(reader)
+print('x_train shape:', x_train.shape)
+print(x_train.shape[0], 'train samples')
+print(x_test.shape[0], 'test samples')
 
-with open(path_to_IMDB + 'training_labels.txt', 'r') as my_file:
-    y_train = my_file.read().splitlines()
+# convert class vectors to binary class matrices
+# transforms integers labels into one-hot flags of length ncol
+y_train = np_utils.to_categorical(y_train, num_classes)
+y_test = np_utils.to_categorical(y_test, num_classes)
 
-with open(path_to_IMDB + 'test_labels.txt', 'r') as my_file:
-    y_test = my_file.read().splitlines()
+# all theory is in here: http://cs231n.github.io/convolutional-networks/
 
-# turn lists of strings into lists of integers
-x_train = [[int(elt) for elt in sublist] for sublist in x_train]
-x_test = [[int(elt) for elt in sublist] for sublist in x_test]  
+my_input = Input(shape=input_shape, dtype='float32') # for some reason here it is important to let the second argument of shape blank
 
-y_train = [int(elt) for elt in y_train]
-y_test = [int(elt) for elt in y_test]
+conv_1 = Convolution2D(nb_filters, 3, 3, # region size is (3, 3)
+                       border_mode = 'valid',
+					   activation = 'relu', 
+                       #input_shape=input_shape
+					  ) (my_input)
+# output is of dim  [(w - f + 2p) / s] + 1, where w is input size, f is filter size, s is stride, and p is amount of zero padding
+# [28 - 3 + 2*0 / 1] + 1
+pooled_conv_1 = MaxPooling2D(pool_size=(2,2)) (conv_1)
+pooled_conv_1_dropped = Dropout(0.2) (pooled_conv_1)
 
-print('data loaded')
+conv_11 = Convolution2D(nb_filters, 3, 3, # region size is (3, 3)
+                       border_mode = 'valid',
+					   activation = 'relu', 
+                       #input_shape=input_shape
+					  ) (pooled_conv_1_dropped)
+pooled_conv_11 = MaxPooling2D(pool_size=(2,2)) (conv_11)
+pooled_conv_11_dropped = Dropout(0.2) (pooled_conv_11)
 
-# ========== pruning ==========
+pooled_conv_11_dropped_flat = Flatten()(pooled_conv_11_dropped)
 
-# only take into account the 'max_features' most frequent words
-# disregard the 'stopword_threhsold' most frequent words
+# ====
 
-x_train = [[elt for elt in rev if elt<=max_features and elt>=stpwd_thd] for rev in x_train]
-x_test =  [[elt for elt in rev if elt<=max_features and elt>=stpwd_thd] for rev in x_test]
+conv_2 = Convolution2D(nb_filters, 4, 4, 
+                       border_mode = 'valid',
+					   activation = 'relu', 
+                       #input_shape=input_shape
+					  ) (my_input)
+pooled_conv_2 = MaxPooling2D(pool_size=(2,2)) (conv_2)
+pooled_conv_2_dropped = Dropout(0.2) (pooled_conv_2)
 
-print('pruning done')
+conv_22 = Convolution2D(nb_filters, 4, 4, 
+                       border_mode = 'valid',
+					   activation = 'relu', 
+                       #input_shape=input_shape
+					  ) (pooled_conv_2_dropped)
+pooled_conv_22 = MaxPooling2D(pool_size=(2,2)) (conv_22)
+pooled_conv_22_dropped = Dropout(0.2) (pooled_conv_22)
 
-# ========== truncation and padding ==========
+pooled_conv_22_dropped_flat = Flatten()(pooled_conv_22_dropped)
 
-# truncate reviews of size larger than 'max_size' to their 'max_size' first words
-x_train = [rev[:max_size] for rev in x_train]
-x_test = [rev[:max_size] for rev in x_test]
+# ====
 
-# pad reviews shorter than 'max_size' with zeroes
-# the vector of the 0th index will be set to all zeroes (zero padding strategy)
+conv_3 = Convolution2D(nb_filters, 5, 5, 
+                       border_mode = 'valid',
+					   activation = 'relu', 
+                       #input_shape=input_shape
+					  ) (my_input)
+pooled_conv_3 = MaxPooling2D(pool_size=(2,2)) (conv_3)
+pooled_conv_3_dropped = Dropout(0.2) (pooled_conv_3)
 
-print('padding',len([elt for elt in x_train if len(elt)<max_size])
-,'reviews from the training set')
+conv_33 = Convolution2D(nb_filters, 2, 2, 
+                       border_mode = 'valid',
+					   activation = 'relu', 
+                       #input_shape=input_shape
+					  ) (pooled_conv_3_dropped)
+pooled_conv_33 = MaxPooling2D(pool_size=(2,2)) (conv_33)
+pooled_conv_33_dropped = Dropout(0.2) (pooled_conv_33)
 
-x_train = [rev+[0]*(max_size-len(rev)) if len(rev)<max_size else rev for rev in x_train]
+pooled_conv_33_dropped_flat = Flatten()(pooled_conv_33_dropped)
 
-# sanity check: all reviews should now be of size 'max_size'
-if max_size == list(set([len(rev) for rev in x_train]))[0]:
-    print('1st sanity check passed')
-else:
-    print('1st sanity check failed !')
+# ====
 
-print('padding',len([elt for elt in x_test if len(elt)<max_size])
-,'reviews from the test set')
+# ====
 
-x_test = [rev+[0]*(max_size-len(rev)) if len(rev)<max_size else rev for rev in x_test]
+conv_4 = Convolution2D(nb_filters, 6, 6, 
+                       border_mode = 'valid',
+					   activation = 'relu', 
+                       #input_shape=input_shape
+					  ) (my_input)
+pooled_conv_4 = MaxPooling2D(pool_size=(2,2)) (conv_4)
+pooled_conv_4_dropped = Dropout(0.2) (pooled_conv_4)
 
-if max_size == list(set([len(rev) for rev in x_test]))[0]:
-    print('2nd sanity check passed')
-else:
-    print('2nd sanity check failed !')
+conv_44 = Convolution2D(nb_filters, 6, 6, 
+                       border_mode = 'valid',
+					   activation = 'relu', 
+                       #input_shape=input_shape
+					  ) (pooled_conv_4_dropped)
+pooled_conv_44 = MaxPooling2D(pool_size=(2,2)) (conv_44)
+pooled_conv_44_dropped = Dropout(0.2) (pooled_conv_44)
 
-print('truncation and padding done')
+pooled_conv_44_dropped_flat = Flatten()(pooled_conv_44_dropped)
 
-# ========== loading pre-trained word vectors ==========
+# ====
 
-# invert mapping
-index_to_word = dict((v,k) for k, v in word_to_index.items())
+merge = Merge(mode='concat') ([pooled_conv_11_dropped_flat,pooled_conv_22_dropped_flat,pooled_conv_33_dropped_flat,pooled_conv_44_dropped_flat])
+merge_dropped = Dropout(0.2) (merge)
 
-# to display the 'stopwords'
-print('stopwords are:',[index_to_word[idx] for idx in range(1,stpwd_thd)])
+dense = Dense(128,
+             activation='relu'
+			) (merge_dropped)
+dense_dropped = Dropout(0.2) (dense)
 
-# convert integer reviews into word reviews
-x_full = x_train + x_test
-x_full_words = [[index_to_word[idx] for idx in rev if idx!=0] for rev in x_full]
-all_words = [word for rev in x_full_words for word in rev]
-
-print(len(all_words),'words')
-print(len(list(set(all_words))),'unique words')
-
-if use_pretrained:
-
-    # initialize word vectors
-    word_vectors = Word2Vec(size=word_vector_dim, min_count=1)
-
-    # create entries for the words in our vocabulary
-    word_vectors.build_vocab(x_full_words)
-
-    # sanity check
-    if len(list(set(all_words))) == len(word_vectors.wv.vocab):
-        print('3rd sanity check passed')
-    else:
-        print('3rd sanity check failed !')
-
-    # fill entries with the pre-trained word vectors
-    path_to_pretrained_wv = ''
-    word_vectors.intersect_word2vec_format(path_to_pretrained_wv + 'GoogleNews-vectors-negative300.bin', binary=True)
-
-    print('pre-trained word vectors loaded')
-
-    # NOTE: in-vocab words without an entry in the binary file are not removed from the vocabulary
-    # instead, their vectors are silently initialized to random values
-
-    # if necessary, we can detect those vectors via their norms which approach zero
-    #norms = [np.linalg.norm(word_vectors[word]) for word in word_vectors.wv.vocab.keys()]
-    #idxs_zero_norms = [idx for idx, norm in enumerate(norms) if norm<0.05]
-    # most of those words are proper nouns, like patton, deneuve, etc.
-    # they don't have an entry in the word vectors because we lowercased the text
-    #no_entry_words = [word_vectors.wv.vocab.keys()[idx] for idx in idxs_zero_norms]
-
-    # create numpy array of embeddings
-    embeddings = np.zeros((max_features + 1,word_vector_dim))
-    for word in word_vectors.wv.vocab.keys():
-        idx = word_to_index[word]
-        # word_to_index is 1-based! the 0-th row, used for padding, stays at zero
-        embeddings[idx,] = word_vectors[word]
-
-    print('embeddings created')
-
-else:
-    print('not using pre-trained embeddings')
-
-# ========== training CNN ==========
-
-#max([max(elt) for elt in x_full])
-
-my_input = Input(shape=(max_size,), dtype='int32') # for some reason here it is important to let the second argument of shape blank
-
-# NOTE: create embedding tables with dimensions based on max_features, ignoring stopword removal and truncation
-# for instance if initially max_features = 2e4, reviews will be composed of integers from 1 to 2e4
-# but after truncation and stopword removal, the actual length of the vocabulary (number of unique integer values) may be much smaller
-# but if input dim is based on this final voc size, some integers still present (in the range [1,2e4]) won't have a row anymore
-# so we create the embedding lookup table based on original max_features value, knowing that the words that have been removed just won't be looked up
-
-if use_pretrained:
-    embedding = Embedding(input_dim = max_features + 1, # vocab size, including the 0-th word used for padding
-                          output_dim = word_vector_dim,
-                          #input_length = max_size, # length of input sequences
-                          dropout = drop_rate, # see http://www.cs.toronto.edu/~rsalakhu/papers/srivastava14a.pdf
-                          #embeddings_constraint = maxnorm(3.),
-                          weights=[embeddings], # we pass our pre-trained embeddings
-                          trainable = do_non_static
-                          ) (my_input)
-else:
-    embedding = Embedding(input_dim = max_features + 1, # vocab size, including the 0-th word used for padding
-                          output_dim = word_vector_dim,
-                          #input_length = max_size, # length of input sequences
-                          dropout = drop_rate, # see http://www.cs.toronto.edu/~rsalakhu/papers/srivastava14a.pdf
-                          #embeddings_constraint = maxnorm(3.),
-                          trainable = do_non_static
-                          ) (my_input)
-
-# size of the feature map should be equal to max_size-filter_length+1
-conv_1 = Convolution1D(nb_filter = nb_filters,
-                       filter_length = 4, # region size
-                       activation='relu',
-                       ) (embedding)
-
-pooled_conv_1 = GlobalMaxPooling1D() (conv_1)
-
-conv_2 = Convolution1D(nb_filter = nb_filters,
-                       filter_length = 5, # region size
-                       activation='relu',
-                       ) (embedding)
-
-pooled_conv_2 = GlobalMaxPooling1D() (conv_2)
-
-conv_3 = Convolution1D(nb_filter = nb_filters,
-                       filter_length = 6, # region size
-                       activation='relu',
-                       ) (embedding)
-
-pooled_conv_3 = GlobalMaxPooling1D() (conv_3)
-
-merge = Merge(mode='concat') ([pooled_conv_1,pooled_conv_2,pooled_conv_3])
-
-merge_dropped = Dropout(drop_rate) (merge) # adding this layer improved test set accuracy by almost 2%
-
-# we finally project onto a single unit output layer with sigmoi activation
-prob = Dense(output_dim = 1, # dimensionality of the output space
-             activation='sigmoid'#,
-             #W_constraint = maxnorm(3.) # constrain L-2 norm of the weights. Slows up convergence (more epochs needed), but does not improve performance. In most recent version of Keras this argument has been renamed 'kernel_constraint'
-             ) (merge_dropped)
+prob = Dense(output_dim = num_classes, # dimensionality of the output space
+             activation='softmax'
+			) (dense_dropped)
 
 model = Model(my_input, prob)
 
-model.compile(loss='binary_crossentropy',
-              optimizer=my_optimizer,
-              metrics=['accuracy'])
+print([layer.output_shape for layer in model.layers])
 
-print('model compiled')
+model.compile(loss='categorical_crossentropy',
+			  optimizer=my_optimizer,
+			  metrics=['accuracy'])
 
-early_stopping = EarlyStopping(monitor='val_loss', # go through epochs as long as loss on validation set decreases
-                               patience = my_patience,
-                               mode = 'min')
-if do_early_stopping:
-    print('using early stopping strategy')
-    
-    model.fit(x_train, 
-              y_train,
-              batch_size = batch_size,
-              nb_epoch = nb_epoch,
-              validation_data = (x_test, y_test),
-              callbacks = [early_stopping])
-else:
-    
-    model.fit(x_train, 
-              y_train,
-              batch_size = batch_size,
-              nb_epoch = nb_epoch,
-              validation_data = (x_test, y_test),
-              )
-
-# persist model to disk
-if model_save:
-    
-    model.save(path_to_IMDB + name_save)
-    
-    print('model saved to disk')
-
-#loss, acc = model.evaluate(x_test, y_test, batch_size = batch_size)
-
-#print('final accuracy on test set:', acc)
+model.fit(x_train, 
+		  y_train, 
+		  batch_size = batch_size, 
+		  nb_epoch = nb_epochs,
+		  validation_data = (x_test, y_test)
+		 )
+		  
