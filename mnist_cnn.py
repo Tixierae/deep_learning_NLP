@@ -1,7 +1,7 @@
 # initially based on https://github.com/fchollet/keras/blob/master/examples/mnist_cnn.py
 
 # gets to ~0.9940 accuracy on test set after 12 epochs (~30s per epoch on NVidia GTX TITAN, 1060s per epoch on Intel i7)
-# tested on ubuntu with Python 3, Keras version 1.1.0., tensorflow backend
+# tested on ubuntu with Python 3, Keras version 1.2.2, tensorflow backend
 
 from keras.datasets import mnist
 from keras.layers import Dense, Dropout, Flatten, Input, Convolution2D, MaxPooling2D, Merge
