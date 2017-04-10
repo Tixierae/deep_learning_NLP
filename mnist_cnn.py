@@ -16,7 +16,7 @@ batch_size = 64
 num_classes = 10
 nb_epochs = 12
 nb_filters = 64
-my_optimizer = 'adadelta'
+my_optimizer = 'adadelta' # proved better than 'adam' in my experiments
 
 # input image dimensions
 img_rows, img_cols = 28, 28
@@ -26,7 +26,7 @@ img_rows, img_cols = 28, 28
 
 # 60,000 training examples - each is of size 28 by 28
 # Pixel values are 0 to 255. 0=white, 255=black 
-# plot 4 images as grey scale
+# plot first 4 images
 #plt.subplot(221)
 #plt.imshow(x_train[0], cmap=plt.get_cmap('gray_r'))
 #plt.subplot(222)
@@ -43,8 +43,6 @@ img_rows, img_cols = 28, 28
 # there is only one channel here (levels of grey), so we need to create a dim here
 # for color pictures we would have 3: RGB
 
-# input_shape=(128, 128, 3) for channel_last
-
 # option 'channels last'
 x_train = x_train.reshape(x_train.shape[0], img_rows, img_cols, 1)
 x_test = x_test.reshape(x_test.shape[0], img_rows, img_cols, 1)
@@ -55,21 +53,18 @@ x_test = x_test.astype('float32')
 
 my_max = np.amax(x_train)
 
-x_train /= my_max # divide by 255 to have values between 0 and 1
+x_train /= my_max # divide by 255 (max value) to have all values between 0 and 1
 x_test /= my_max
 
 print('x_train shape:', x_train.shape)
 print(x_train.shape[0], 'train samples')
 print(x_test.shape[0], 'test samples')
 
-# convert class vectors to binary class matrices
 # transforms integers labels into one-hot flags of length ncol
 y_train = np_utils.to_categorical(y_train, num_classes)
 y_test = np_utils.to_categorical(y_test, num_classes)
 
-# all theory is in here: http://cs231n.github.io/convolutional-networks/
-
-my_input = Input(shape=input_shape, dtype='float32') # for some reason here it is important to let the second argument of shape blank
+my_input = Input(shape=input_shape, dtype='float32')
 
 conv_1 = Convolution2D(nb_filters, 3, 3, # region size is (3, 3)
                        border_mode = 'valid',
@@ -77,11 +72,12 @@ conv_1 = Convolution2D(nb_filters, 3, 3, # region size is (3, 3)
                        #input_shape=input_shape
 					  ) (my_input)
 # output is of dim  [(w - f + 2p) / s] + 1, where w is input size, f is filter size, s is stride, and p is amount of zero padding
-# [28 - 3 + 2*0 / 1] + 1
+# [28 - 3 + 2*0 / 1] + 1 all theory is in here: http://cs231n.github.io/convolutional-networks/
+
 pooled_conv_1 = MaxPooling2D(pool_size=(2,2)) (conv_1)
 pooled_conv_1_dropped = Dropout(0.2) (pooled_conv_1)
 
-conv_11 = Convolution2D(nb_filters, 3, 3, # region size is (3, 3)
+conv_11 = Convolution2D(nb_filters, 3, 3,
                        border_mode = 'valid',
 					   activation = 'relu', 
                        #input_shape=input_shape
@@ -90,6 +86,8 @@ pooled_conv_11 = MaxPooling2D(pool_size=(2,2)) (conv_11)
 pooled_conv_11_dropped = Dropout(0.2) (pooled_conv_11)
 
 pooled_conv_11_dropped_flat = Flatten()(pooled_conv_11_dropped)
+
+# increasing the number of different filter sizes proved better than increasing depth of each individually in my experiments
 
 # ====
 
@@ -163,7 +161,7 @@ dense = Dense(128,
 			) (merge_dropped)
 dense_dropped = Dropout(0.2) (dense)
 
-prob = Dense(output_dim = num_classes, # dimensionality of the output space
+prob = Dense(output_dim = num_classes, # we output a prob distribution over the classes
              activation='softmax'
 			) (dense_dropped)
 
