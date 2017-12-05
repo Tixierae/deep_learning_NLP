@@ -1,4 +1,6 @@
 This repo contains code to accompany my notes [Introduction to CNNs and LSTMs for NLP](http://www.lix.polytechnique.fr/~anti5662/intro_cnn_lstm_tixier.pdf)
+# ! Note
+The most recent version of the code lives in this notebook: [cnn_imdb.ipynb](https://github.com/Tixierae/deep_learning_NLP/blob/master/cnn_imdb.ipynb)
 # imdb_preprocess.py
 Python pre-processing of pos/neg movie reviews from the IMDB dataset to be passed to a CNN
 # imdb_main.py
