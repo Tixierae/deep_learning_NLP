@@ -1,4 +1,4 @@
-This repo contains code to accompany my notes [Introduction to CNNs and LSTMs for NLP](http://www.lix.polytechnique.fr/~anti5662/intro_cnn_lstm_tixier.pdf)
+This repo contains code to accompany my notes [Introduction to CNNs and LSTMs for NLP](http://www.lix.polytechnique.fr/Labo/Antoine.Tixier/dl_nlp_notes.pdf)
 # ! Note
 The most recent version of the code lives in this notebook: [cnn_imdb.ipynb](https://github.com/Tixierae/deep_learning_NLP/blob/master/cnn_imdb.ipynb)
 # imdb_preprocess.py
