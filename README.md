@@ -1,9 +1,9 @@
 # Deep Learning architectures for NLP
 
-This repository contains the implementations listed below. For a quick theoretical intro about Deep Learning for NLP, I encourage you to have a look at my [notes](https://arxiv.org/pdf/1808.09772.pdf).
+This repository contains Keras implementations of the architectures listed below. For a quick theoretical intro about Deep Learning for NLP, I encourage you to have a look at my [notes](https://arxiv.org/pdf/1808.09772.pdf).
 
 ## Hierarchical Attention Network for Document Classification
-A **RAM-friendly** Keras implementation of the model introduced by [Yang et al. (2016)](http://www.aclweb.org/anthology/N16-1174), with step-by-step explanations and links to relevant resources: https://github.com/Tixierae/deep_learning_NLP/blob/master/HAN/HAN_final.ipynb
+A **RAM-friendly** implementation of the model introduced by [Yang et al. (2016)](http://www.aclweb.org/anthology/N16-1174), with step-by-step explanations and links to relevant resources: https://github.com/Tixierae/deep_learning_NLP/blob/master/HAN/HAN_final.ipynb
 
 <img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/master/HAN/han_architecture_illustration_small.bmp" alt="" width="550"/>
 
@@ -25,7 +25,7 @@ The notebook makes use of the following concepts:
 <sup>1</sup>There is more and more evidence that adaptive optimizers like Adam, Adagrad, etc. converge faster but generalize poorly compared to SGD-based approaches. For example: [Wilson et al. (2018)](https://arxiv.org/pdf/1705.08292.pdf), this [blogpost]( https://shaoanlu.wordpress.com/2017/05/29/sgd-all-which-one-is-the-best-optimizer-dogs-vs-cats-toy-experiment/). Traditional SGD is very slow, but a cyclical learning rate schedule can bring a significant speedup, and even sometimes allow to reach better performance.
 
 ## 1D Convolutional Neural Network for short text classification
-[Keras implementation](https://github.com/Tixierae/deep_learning_NLP/blob/master/cnn_imdb.ipynb) of [(Kim 2014)'s 1D Convolutional Neural Net for short text classification](https://arxiv.org/abs/1408.5882): https://github.com/Tixierae/deep_learning_NLP/blob/master/cnn_imdb.ipynb 
+An implementation of [(Kim 2014)'s 1D Convolutional Neural Net for short text classification](https://arxiv.org/abs/1408.5882): https://github.com/Tixierae/deep_learning_NLP/blob/master/cnn_imdb.ipynb 
 
-## 2D CNN for image classification.
-Agreed, this is not for NLP. But a Keras implementation can be found here https://github.com/Tixierae/deep_learning_NLP/blob/master/mnist_cnn.py
+## 2D CNN for image classification
+Agreed, this is not for NLP. But an implementation can be found here https://github.com/Tixierae/deep_learning_NLP/blob/master/mnist_cnn.py. I reach 99.45% accuracy on MNIST with it.
