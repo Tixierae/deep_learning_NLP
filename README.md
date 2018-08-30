@@ -29,3 +29,14 @@ An implementation of [(Kim 2014)'s](https://arxiv.org/abs/1408.5882) 1D Convolut
 
 ## 2D CNN for image classification
 Agreed, this is not for NLP. But an implementation can be found here https://github.com/Tixierae/deep_learning_NLP/blob/master/mnist_cnn.py. I reach 99.45% accuracy on MNIST with it.
+
+## Cite
+If you use some of the code in this repository, please cite
+```
+@article{tixier2018notes,
+  title={Notes on Deep Learning for NLP},
+  author={Tixier, Antoine J.-P.},
+  journal={arXiv preprint arXiv:1808.09772},
+  year={2018}
+}
+```
