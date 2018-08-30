@@ -6,7 +6,7 @@ this script implements the following preprocessing steps:
     - count the number of occurrences of each word
     - replace the unfrequent words with a special token
     - turn word docs into integer docs, sorted by increasing # of sents (for bucketing)
-    - learn word2vec embeddings from training set (devoid of validation set)
+    - learn word2vec embeddings from training + validation sets
 
 line by line processing is used, so datasets that don't fit in RAM can still be treated
 
@@ -23,7 +23,7 @@ warnings:
     - input files should be named 'train.csv' and 'test.csv', be in format above
     - last line of each file should be blank!
     - all available cores are used by default (hardcode 'n_jobs' to change)
-    - all generated files should be deleted before re-running the script in the same dir
+    - all generated files should be deleted before re-running the script in the same directory
 
 tested on Python 3.5 and 3.6 with gensim 3.2.0
 takes ~2.17 hours to process full Amazon dataset (3.65M docs, 1.6GB) using 8 cores @2.4GHz
