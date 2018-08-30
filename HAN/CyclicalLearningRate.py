@@ -1,3 +1,5 @@
+# this script was taken from https://github.com/bckenstler/CLR
+
 from keras.callbacks import *
 
 class CyclicLR(Callback):

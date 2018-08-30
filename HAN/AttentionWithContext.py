@@ -1,3 +1,5 @@
+# this script was taken from https://gist.github.com/cbaziotis/7ef97ccf71cbc14366835198c09809d2
+
 import keras.backend as K
 from keras.layers import Layer
 from keras import initializers, regularizers, constraints
