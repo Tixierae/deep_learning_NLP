@@ -27,6 +27,8 @@ The notebook makes use of the following concepts:
 ## 1D Convolutional Neural Network for short text classification
 An implementation of [(Kim 2014)'s](https://arxiv.org/abs/1408.5882) 1D Convolutional Neural Network for short text classification: https://github.com/Tixierae/deep_learning_NLP/blob/master/cnn_imdb.ipynb 
 
+<img src="https://github.com/Tixierae/deep_learning_NLP/raw/master/cnn_illustration.png" alt="Drawing" style="width: 250px;"/>
+
 ## 2D CNN for image classification
 Agreed, this is not for NLP. But an implementation can be found here https://github.com/Tixierae/deep_learning_NLP/blob/master/mnist_cnn.py. I reach 99.45% accuracy on MNIST with it.
 
