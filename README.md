@@ -10,7 +10,7 @@ A **RAM-friendly** implementation of the model introduced by [Yang et al. (2016)
 In my experiments on the **Amazon review dataset** (3,650,000 documents, 5 classes), I reach **62.6%** accuracy after 8 epochs, and **63.6%** accuracy (the accuracy reported in the paper) after 42 epochs. Each epoch takes about 20 mins on my TitanX GPU. I deployed the model as a [web app](https://safetyapp.shinyapps.io/DNLPvis/). As shown in the image below, you can paste your own review and visualize how the model pays attention to words and sentences.
 
 <a href="https://safetyapp.shinyapps.io/DNLPvis/" target="_blank">
-<img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/master/HAN/dnlpvis_app_illustration.bmp" alt="" width="450"/></a>
+<img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/master/HAN/dnlpvis_app_illustration_new.bmp" alt="" width="450"/></a>
 
 ### Concepts covered
 The notebook makes use of the following concepts:
@@ -25,15 +25,15 @@ The notebook makes use of the following concepts:
 <sup>1</sup>There is more and more evidence that adaptive optimizers like Adam, Adagrad, etc. converge faster but generalize poorly compared to SGD-based approaches. For example: [Wilson et al. (2018)](https://arxiv.org/pdf/1705.08292.pdf), this [blogpost]( https://shaoanlu.wordpress.com/2017/05/29/sgd-all-which-one-is-the-best-optimizer-dogs-vs-cats-toy-experiment/). Traditional SGD is very slow, but a cyclical learning rate schedule can bring a significant speedup, and even sometimes allow to reach better performance.
 
 ## 1D Convolutional Neural Network for short text classification
-An implementation of [(Kim 2014)'s](https://arxiv.org/abs/1408.5882) 1D Convolutional Neural Network for short text classification: https://github.com/Tixierae/deep_learning_NLP/blob/master/cnn_imdb.ipynb 
+An implementation of [(Kim 2014)'s](https://arxiv.org/abs/1408.5882) 1D Convolutional Neural Network for short text classification: https://github.com/Tixierae/deep_learning_NLP/blob/master/CNN_IMDB/cnn_imdb.ipynb 
 
-<img src="https://github.com/Tixierae/deep_learning_NLP/raw/master/cnn_illustration.png" alt="Drawing" style="width: 250px;"/>
+<img src="https://github.com/Tixierae/deep_learning_NLP/blob/master/CNN_IMDB/cnn_illustration.png" alt="Drawing" style="width: 250px;"/>
 
 ## 2D CNN for image classification
-Agreed, this is not for NLP. But an implementation can be found here https://github.com/Tixierae/deep_learning_NLP/blob/master/mnist_cnn.py. I reach 99.45% accuracy on MNIST with it.
+Agreed, this is not for NLP. But an implementation can be found here https://github.com/Tixierae/deep_learning_NLP/blob/master/CNN_MNIST/mnist_cnn.py. I reach 99.45% accuracy on MNIST with it.
 
 ## Cite
-If you use some of the code in this repository, please cite
+If you use some of the code in this repository in your work, please cite
 ```
 @article{tixier2018notes,
   title={Notes on Deep Learning for NLP},
@@ -41,4 +41,8 @@ If you use some of the code in this repository, please cite
   journal={arXiv preprint arXiv:1808.09772},
   year={2018}
 }
+```
+
+```
+Tixier, A. J. P. (2018). Notes on Deep Learning for NLP. arXiv preprint arXiv:1808.09772.
 ```
