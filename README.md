@@ -5,12 +5,16 @@ This repository contains Keras implementations of the architectures listed below
 ## Hierarchical Attention Network for Document Classification
 A **RAM-friendly** implementation of the model introduced by [Yang et al. (2016)](http://www.aclweb.org/anthology/N16-1174), with step-by-step explanations and links to relevant resources: https://github.com/Tixierae/deep_learning_NLP/blob/master/HAN/HAN_final.ipynb
 
+<p align="center">
 <img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/master/HAN/han_architecture_illustration_small.bmp" alt="" width="550"/>
+</p>
 
 In my experiments on the **Amazon review dataset** (3,650,000 documents, 5 classes), I reach **62.6%** accuracy after 8 epochs, and **63.6%** accuracy (the accuracy reported in the paper) after 42 epochs. Each epoch takes about 20 mins on my TitanX GPU. I deployed the model as a [web app](https://safetyapp.shinyapps.io/DNLPvis/). As shown in the image below, you can paste your own review and visualize how the model pays attention to words and sentences.
 
+<p align="center">
 <a href="https://safetyapp.shinyapps.io/DNLPvis/" target="_blank">
 <img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/master/HAN/dnlpvis_app_illustration_new.bmp" alt="" width="450"/></a>
+</p>
 
 ### Concepts covered
 The notebook makes use of the following concepts:
@@ -27,7 +31,9 @@ The notebook makes use of the following concepts:
 ## 1D Convolutional Neural Network for short text classification
 An implementation of [(Kim 2014)'s](https://arxiv.org/abs/1408.5882) 1D Convolutional Neural Network for short text classification: https://github.com/Tixierae/deep_learning_NLP/blob/master/CNN_IMDB/cnn_imdb.ipynb 
 
+<p align="center">
 <img src="https://github.com/Tixierae/deep_learning_NLP/blob/master/CNN_IMDB/cnn_illustration.png" alt="Drawing" style="width: 250px;"/>
+</p>
 
 ## 2D CNN for image classification
 Agreed, this is not for NLP. But an implementation can be found here https://github.com/Tixierae/deep_learning_NLP/blob/master/CNN_MNIST/mnist_cnn.py. I reach 99.45% accuracy on MNIST with it.
