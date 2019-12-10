@@ -1,6 +1,21 @@
 # Deep Learning architectures for NLP
 
-This repository contains Keras implementations of the architectures listed below. For a quick theoretical intro about Deep Learning for NLP, I encourage you to have a look at my [notes](https://arxiv.org/pdf/1808.09772.pdf).
+This repository contains Keras, PyTorch and NumPy implementations of some deep learning architectures for NLP. For a quick theoretical intro about Deep Learning for NLP, I encourage you to have a look at my [notes](https://arxiv.org/pdf/1808.09772.pdf).
+
+## Word2vec and doc2vec by hand in NumPy
+
+We learn word and document vectors completely by hand on the IMDB movie review dataset, with just a `for` loop and NumPy! We implement the following models:
+* word2vec's **skip-gram with negative sampling**, as introduced in [Efficient Estimation of Word Representations in Vector Space](https://arxiv.org/pdf/1301.3781.pdf) and [Distributed Representations of Words and Phrases and their Compositionality](https://arxiv.org/pdf/1310.4546.pdf).
+* doc2vec (a.k.a. Paragraph Vector)'s **distributed bag-of-words**, following [Distributed Representations of Sentences and Documents](https://arxiv.org/pdf/1405.4053.pdf).
+
+We also:
+
+* write an **inference** function to compute the vector of any new document
+* **visualize** word and document vectors separately, and together in the same space
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/blob/master/skipgram/images/doc2vec_readme.png" alt="" width="550"/>
+</p>
 
 ## Hierarchical Attention Network for Document Classification
 A **RAM-friendly** implementation of the model introduced by [Yang et al. (2016)](http://www.aclweb.org/anthology/N16-1174), with step-by-step explanations and links to relevant resources: https://github.com/Tixierae/deep_learning_NLP/blob/master/HAN/HAN_final.ipynb
