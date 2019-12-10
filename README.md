@@ -14,7 +14,7 @@ We also:
 * **visualize** word and document vectors separately, and together in the same space
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/blob/master/skipgram/images/doc2vec_readme.png" alt="" width="550"/>
+<img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/master/skipgram/images/doc2vec_readme.png" alt="" width="550"/>
 </p>
 
 ## Hierarchical Attention Network for Document Classification
