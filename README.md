@@ -49,7 +49,7 @@ The notebook makes use of the following concepts:
 An implementation of [(Kim 2014)'s](https://arxiv.org/abs/1408.5882) 1D Convolutional Neural Network for short text classification: https://github.com/Tixierae/deep_learning_NLP/blob/master/CNN_IMDB/cnn_imdb.ipynb 
 
 <p align="center">
-<img src="https://github.com/Tixierae/deep_learning_NLP/blob/master/CNN_IMDB/cnn_illustration.png" alt="Drawing" style="width: 250px;"/>
+<img src="https://github.com/Tixierae/deep_learning_NLP/blob/master/CNN_IMDB/cnn_illustration.png" alt="Drawing" width="450"/>
 </p>
 
 ## 2D CNN for image classification
