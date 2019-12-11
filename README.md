@@ -4,7 +4,9 @@ This repository contains Keras, PyTorch and NumPy implementations of some deep l
 
 ## Word2vec and doc2vec by hand in NumPy
 
-We learn word and document vectors completely by hand on the IMDB movie review dataset, with just a `for` loop and NumPy! We implement the following models:
+https://github.com/Tixierae/deep_learning_NLP/blob/master/skipgram/sg_d2v_numpy.ipynb
+
+In this notebook, we learn word and document vectors completely by hand on the IMDB movie review dataset, with just a `for` loop and NumPy! We implement the following models:
 * word2vec's **skip-gram with negative sampling**, as introduced in [Efficient Estimation of Word Representations in Vector Space](https://arxiv.org/pdf/1301.3781.pdf) and [Distributed Representations of Words and Phrases and their Compositionality](https://arxiv.org/pdf/1310.4546.pdf).
 * doc2vec (a.k.a. Paragraph Vector)'s **distributed bag-of-words**, following [Distributed Representations of Sentences and Documents](https://arxiv.org/pdf/1405.4053.pdf).
 
