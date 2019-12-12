@@ -1,4 +1,4 @@
-# Deep Learning architectures for NLP
+# Deep Learning architectures for NLP ![GitHub stars](https://img.shields.io/github/stars/tixierae/deep_learning_NLP.svg?style=plastic) ![GitHub forks](https://img.shields.io/github/forks/tixierae/deep_learning_NLP.svg?color=blue&style=plastic)
 
 This repository contains Keras, PyTorch and NumPy implementations of some deep learning architectures for NLP. For a quick theoretical intro about Deep Learning for NLP, I encourage you to have a look at my [notes](https://arxiv.org/pdf/1808.09772.pdf).
 
