@@ -57,7 +57,7 @@ Agreed, this is not for NLP. But an implementation can be found here https://git
 
 ## Cite
 If you use some of the code in this repository in your work, please cite
-```
+```BibTeX
 @article{tixier2018notes,
   title={Notes on Deep Learning for NLP},
   author={Tixier, Antoine J.-P.},
