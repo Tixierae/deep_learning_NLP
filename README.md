@@ -56,7 +56,7 @@ An implementation of [(Kim 2014)'s](https://arxiv.org/abs/1408.5882) 1D Convolut
 Agreed, this is not for NLP. But an implementation can be found here https://github.com/Tixierae/deep_learning_NLP/blob/master/CNN_MNIST/mnist_cnn.py. I reach 99.45% accuracy on MNIST with it.
 
 ## Inverted index and TF-IDF by hand
-This notebook provides simple functions to clean and index documents, and to execute word and phrase queries. It also show how to compute TF-IDF coefficients.
+This notebook provides simple functions to clean and index documents, and to execute word and phrase queries. It also shows how to compute TF-IDF coefficients.
 https://github.com/Tixierae/deep_learning_NLP/blob/master/other/inverted_index_tfidf.ipynb
 
 ## Cite
