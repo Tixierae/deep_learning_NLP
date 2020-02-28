@@ -8,8 +8,7 @@ Here, we provide a compact, fully functional, and well-commented PyTorch impleme
 * concat
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/master/NMT/global_summary_improved.png
-" alt="Drawing" width="450"/>
+<img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/master/NMT/global_summary_improved.png alt="" width="550"/>
 </p>
 
 Moreover, our implementation provides support for different hyper-parameter combinations:
