@@ -346,10 +346,11 @@ class seq2seqModel(nn.Module):
             if patience_counter>patience:
                 break
         
+        self.test_toy(test_sents) 
+        
         self.logs['avg_time_it'] = round(np.mean(it_times),4)
         self.logs['n_its'] = len(it_times)
-        
-        self.test_toy(test_sents)
+       
         
     def sourceNl_to_ints(self, source_nl):
         '''converts natural language source sentence to source integers'''
