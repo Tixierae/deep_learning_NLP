@@ -1,6 +1,19 @@
+
 # Deep Learning architectures for NLP ![GitHub stars](https://img.shields.io/github/stars/tixierae/deep_learning_NLP.svg?style=plastic) ![GitHub forks](https://img.shields.io/github/forks/tixierae/deep_learning_NLP.svg?color=blue&style=plastic)
 
 This repository contains Keras, PyTorch and NumPy implementations of some deep learning architectures for NLP. For a quick theoretical intro about Deep Learning for NLP, I encourage you to have a look at my [notes](https://arxiv.org/pdf/1808.09772.pdf).
+
+## Neural Machine Translation (NMT) in PyTorch
+
+https://github.com/Tixierae/deep_learning_NLP/tree/master/NMT
+
+A compact, fully functional, and well-commented PyTorch implementation of the classical seq2seq model **"Effective Approaches to Attention-based Neural Machine Translation"** ([Luong et al. 2015](https://arxiv.org/pdf/1508.04025.pdf)), with support for the three **global attention** mechanisms presented in subsection 3.1 of the paper: (1) dot, (2) general, and (3) concat, and also *stacking* vs *non-stacking* RNN encoder and decoder, *bidirectional* vs *unidirectional* RNN encoder.
+
+<p align="center">
+<img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/master/NMT/global_summary_improved.png" alt="" width="550"/>
+</p>
+
+We experiment on a toy English -> French dataset from http://www.manythings.org/anki/, originally extracted from the [Tatoeba project](https://tatoeba.org/eng/), with 136,521 sentence pairs for training and 34,130 pairs for testing.
 
 ## Word2vec and doc2vec by hand in NumPy
 

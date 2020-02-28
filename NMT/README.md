@@ -1,16 +1,13 @@
-
-
 # Neural Machine Translation in PyTorch
 
 Here, we provide a compact, fully functional, and well-commented PyTorch implementation of the classical seq2seq model introduced in **Effective Approaches to Attention-based Neural Machine Translation** ([Luong et al. 2015](https://arxiv.org/pdf/1508.04025.pdf)), with support for the three **global attention** mechanisms presented in subsection 3.1 of the paper:
-
 
 * dot
 * general
 * concat
 
 <p align="center">
-<img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/master/NMT/global_summary_improved.png" alt="" width="550"/>
+<img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/master/NMT/global_summary_improved.png" alt="" width="650"/>
 </p>
 
 Moreover, our implementation provides support for different hyper-parameter combinations:
@@ -25,9 +22,9 @@ a target sentence is 8.3.
 
 ## How to use:
 
-* `pip install -r requirements.txt` 
+* `pip install -r requirements.txt`
 * `unzip ./data/eng_fr.zip`
-* `python preprocessing.py` ()
+* `python preprocessing.py`
 * `python grid_search.py`
 
 
