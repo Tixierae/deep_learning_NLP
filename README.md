@@ -1,5 +1,6 @@
 
-# Deep Learning architectures for NLP ![GitHub stars](https://img.shields.io/github/stars/tixierae/deep_learning_NLP.svg?style=plastic) ![GitHub forks](https://img.shields.io/github/forks/tixierae/deep_learning_NLP.svg?color=blue&style=plastic)
+
+# :heart: Deep Learning architectures for NLP ![GitHub stars](https://img.shields.io/github/stars/tixierae/deep_learning_NLP.svg?style=plastic) ![GitHub forks](https://img.shields.io/github/forks/tixierae/deep_learning_NLP.svg?color=blue&style=plastic)
 
 This repository contains Keras, PyTorch and NumPy implementations of some deep learning architectures for NLP. For a quick theoretical intro about Deep Learning for NLP, I encourage you to have a look at my [notes](https://arxiv.org/pdf/1808.09772.pdf).
 
@@ -7,7 +8,7 @@ This repository contains Keras, PyTorch and NumPy implementations of some deep l
 
 https://github.com/Tixierae/deep_learning_NLP/tree/master/NMT
 
-A compact, fully functional, and well-commented PyTorch implementation of the classical seq2seq model **"Effective Approaches to Attention-based Neural Machine Translation"** ([Luong et al. 2015](https://arxiv.org/pdf/1508.04025.pdf)), with support for the three **global attention** mechanisms presented in subsection 3.1 of the paper: (1) dot, (2) general, and (3) concat, and also *stacking* vs *non-stacking* RNN encoder and decoder, *bidirectional* vs *unidirectional* RNN encoder.
+A compact, fully functional, and well-commented PyTorch implementation of the classical seq2seq model **"Effective Approaches to Attention-based Neural Machine Translation"** ([Luong et al. 2015](https://arxiv.org/pdf/1508.04025.pdf)), with support for the three **global attention** mechanisms presented in subsection 3.1 of the paper: (1) dot, (2) general, and (3) concat, and also *stacking* vs *non-stacking* RNN encoder and decoder, and *bidirectional* vs *unidirectional* RNN encoder.
 
 <p align="center">
 <img src="https://raw.githubusercontent.com/Tixierae/deep_learning_NLP/master/NMT/global_summary_improved.png" alt="" width="550"/>
@@ -72,7 +73,7 @@ Agreed, this is not for NLP. But an implementation can be found here https://git
 This notebook provides simple functions to clean and index documents, and to execute word and phrase queries. It also shows how to compute TF-IDF coefficients.
 https://github.com/Tixierae/deep_learning_NLP/blob/master/other/inverted_index_tfidf.ipynb
 
-## Cite
+## Cite :thumbsup:
 If you use some of the code in this repository in your work, please cite
 ```BibTeX
 @article{tixier2018notes,
