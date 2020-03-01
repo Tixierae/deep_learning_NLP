@@ -308,13 +308,6 @@ class seq2seqModel(nn.Module):
                         updated_loss = total_loss/(i+1)
                         tdqm_dict[tdqm_dict_keys[loader_idx]] = updated_loss
                         
-                        if loader_idx == 1:
-                            logs_epoch['test_loss'].append(round(updated_loss,4))
-                        else:
-                            # save every 100 batches
-                            if i % int(len(trainingDataset)/100) == 0:
-                                logs_epoch['loss'].append(round(updated_loss,4))
-                        
                         # = = BLEU = =
                         if loader_idx == 1:
                             refs = self.for_bleu(batch_target, True)
@@ -323,7 +316,6 @@ class seq2seqModel(nn.Module):
                             total_bleu += batch_bleu
                             updated_bleu = total_bleu/(i+1)
                             tdqm_dict['test BLEU'] = updated_bleu
-                            logs_epoch['test_BLEU'].append(round(100*updated_bleu,2))
                         
                         pbar.set_postfix(tdqm_dict)
                         
@@ -335,6 +327,16 @@ class seq2seqModel(nn.Module):
                         
                         it_times.append(round(time() - start_time,2))
                         
+                        
+                    # save loss, test loss, and test BLEU, at the end of each epoch
+                    if loader_idx == 0:
+                        logs_epoch['loss'].append(round(updated_loss,4))
+                    
+                    else:
+                       logs_epoch['test_loss'].append(round(updated_loss,4))
+                       logs_epoch['test_BLEU'].append(round(100*updated_bleu,2))
+            
+            
             self.logs['epoch_' + str(epoch+1)] = logs_epoch
             
             if total_loss > patience_loss:
