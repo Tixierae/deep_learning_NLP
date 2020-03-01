@@ -79,7 +79,7 @@ for att_strategy in ['dot','general','concat']:
                          max_size = 30, # for the decoder, in prediction mode
                          dropout = 0.1)
 
-    model.fit(training_set, test_set, lr=0.001, batch_size=64, n_epochs=200, patience=2)
+    model.fit(training_set, test_set, lr=0.005, batch_size=64, n_epochs=200, patience=5)
 
     model_name = '_'.join([att_strategy, str(num_layers), str(bidirectional)])
     model.save(path_to_save, model_name)

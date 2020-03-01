@@ -313,7 +313,7 @@ class seq2seqModel(nn.Module):
                             batch_bleu = corpus_bleu(refs, hyps)
                             total_bleu += batch_bleu
                             updated_bleu = total_bleu/(i+1)
-                            tdqm_dict['test BLEU'] = updated_bleu
+                            tdqm_dict['test BLEU'] = round(100*updated_bleu,2)
                         
                         pbar.set_postfix(tdqm_dict)
                         
