@@ -56,28 +56,30 @@ test_set = Dataset(pairs_test)
 
 print('data prepared')
 
+num_layers = 1
+bidirectional = False
+
 for att_strategy in ['dot','general','concat']:
-    for num_layers in [1,2]:
-        for bidirectional in [False,True]:
-            model = seq2seqModel(vocab_s = vocab_source,
-                                 source_language = 'english',
-                                 vocab_t_inv = vocab_target_inv,
-                                 embedding_dim_s = 40,
-                                 embedding_dim_t = 40,
-                                 hidden_dim_s = 30,
-                                 hidden_dim_t = 30,
-                                 hidden_dim_att = 20,
-                                 num_layers = num_layers,
-                                 bidirectional = bidirectional,
-                                 att_strategy = att_strategy,
-                                 padding_token = 0,
-                                 oov_token = 1,
-                                 sos_token = 2,
-                                 eos_token = 3,
-                                 max_size = 30, # for the decoder, in prediction mode
-                                 dropout = 0.1)
+    
+    model = seq2seqModel(vocab_s = vocab_source,
+                         source_language = 'english',
+                         vocab_t_inv = vocab_target_inv,
+                         embedding_dim_s = 40,
+                         embedding_dim_t = 40,
+                         hidden_dim_s = 30,
+                         hidden_dim_t = 30,
+                         hidden_dim_att = 20,
+                         num_layers = num_layers,
+                         bidirectional = bidirectional,
+                         att_strategy = att_strategy,
+                         padding_token = 0,
+                         oov_token = 1,
+                         sos_token = 2,
+                         eos_token = 3,
+                         max_size = 30, # for the decoder, in prediction mode
+                         dropout = 0.1)
 
-            model.fit(training_set, test_set, lr=0.001, batch_size=64, n_epochs=100, patience=2)
+    model.fit(training_set, test_set, lr=0.001, batch_size=64, n_epochs=200, patience=2)
 
-            model_name = '_'.join([att_strategy, str(num_layers), str(bidirectional)])
-            model.save(path_to_save, model_name)
+    model_name = '_'.join([att_strategy, str(num_layers), str(bidirectional)])
+    model.save(path_to_save, model_name)
