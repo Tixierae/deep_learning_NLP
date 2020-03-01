@@ -1,0 +1,17 @@
+{
+    "att_strategy": "concat",
+    "bidirectional": true,
+    "dropout": 0.3,
+    "embedding_dim_s": 50,
+    "embedding_dim_t": 50,
+    "eos_token": 3,
+    "hidden_dim_att": 30,
+    "hidden_dim_s": 40,
+    "hidden_dim_t": 40,
+    "max_size": 30,
+    "num_layers": 1,
+    "oov_token": 1,
+    "padding_token": 0,
+    "sos_token": 2,
+    "source_language": "english"
+}
