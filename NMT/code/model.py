@@ -406,10 +406,10 @@ class seq2seqModel(nn.Module):
         params = {attr:getattr(self,attr) for attr in args_save}
         
         with open(path_to_save + 'params_' + model_name + '.json', 'w') as file:
-            json.dump(params, file, sort_keys=True, indent=4)
+            json.dump(params, file, indent=4)
         
         with open(path_to_save + 'logs_' + model_name + '.json', 'w') as file:
-            json.dump(self.logs, file, sort_keys=True, indent=4)
+            json.dump(self.logs, file, indent=4)
     
     @classmethod # a class method does not see the inside of the class (a static method does not take self as first argument)
     def load(cls,path_to_file):
