@@ -124,7 +124,6 @@ class Decoder(nn.Module):
         self.dropout_1 = nn.Dropout(dropout)
         self.rnn = nn.GRU(embedding_dim, hidden_dim_t, num_layers, dropout=dropout)
         self.ff_concat = nn.Linear(hidden_dim_s + hidden_dim_t, hidden_dim_t)
-        self.dropout_2 = nn.Dropout(dropout)
         self.final = nn.Linear(hidden_dim_t, vocab_size)
     
     def forward(self, input, source_context, h):
@@ -132,7 +131,6 @@ class Decoder(nn.Module):
         word_vector = self.dropout_1(word_vector)
         h_top, h_all = self.rnn(word_vector, h) # output is (1,batch,hidden_dim_t), (num_layers,batch,hidden_dim_t); ([0]: top stacking RNN layer, [1]: all stacking RNN layers)
         h_tilde = torch.tanh(self.ff_concat(torch.cat((source_context, h_top), -1))) # (1,batch,hidden_dim_s+hidden_dim_t) -> (1,batch,hidden_dim_t). This corresponds to Eq. 5 in Luong et al. 2015
-        h_tilde = self.dropout_2(h_tilde)
         prediction = self.final(h_tilde) # (1,batch,feat) -> (1,batch,vocab) note that the prediction is not normalized at this time (it is just a vector of logits)
         
         return prediction, h_all
