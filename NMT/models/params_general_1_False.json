@@ -7,7 +7,7 @@
     "hidden_dim_att": 20,
     "num_layers": 1,
     "bidirectional": false,
-    "att_strategy": "dot",
+    "att_strategy": "general",
     "padding_token": 0,
     "oov_token": 1,
     "sos_token": 2,
