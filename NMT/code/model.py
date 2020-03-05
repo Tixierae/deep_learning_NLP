@@ -46,14 +46,12 @@ class Encoder(nn.Module):
         super(Encoder, self).__init__()
         self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx)
         self.dropout = nn.Dropout(dropout)
-        if bidirectional:
-            hidden_dim = int(hidden_dim/2)
         self.rnn = nn.GRU(embedding_dim, hidden_dim, num_layers, dropout=dropout, bidirectional=bidirectional)
     
     def forward(self, input):
         word_vectors = self.embedding(input)
         word_vectors = self.dropout(word_vectors)
-        hs,_ = self.rnn(word_vectors) # (seq,batch,embedding_dim). We are only interested in the first element of the output (annotations of the top layer of the stacking RNN)
+        hs,_ = self.rnn(word_vectors) # (seq,batch,hidden_dim or hidden_dim*2). We are only interested in the first element of the output (annotations of the top layer of the stacking RNN)
         
         return hs
 
@@ -65,10 +63,12 @@ class seq2seqAtt(nn.Module):
     (see: https://arxiv.org/pdf/1508.04025.pdf)
     '''
     
-    def __init__(self, hidden_dim, hidden_dim_s, hidden_dim_t, strategy):
+    def __init__(self, hidden_dim, hidden_dim_s, hidden_dim_t, strategy, bidirectional):
         super(seq2seqAtt, self).__init__()
-        self.strategy = strategy
         assert strategy in ['dot','general','concat'], "'strategy' must be in ['dot','general','concat']"
+        
+        if bidirectional:
+            hidden_dim_s = hidden_dim_s*2
         
         if strategy == 'dot':
             assert hidden_dim_s == hidden_dim_t, "with 'dot' strategy, source and target hidden dims must be equal!"
@@ -79,6 +79,8 @@ class seq2seqAtt(nn.Module):
         elif strategy == 'concat':
             self.ff_concat = nn.Linear(hidden_dim_s+hidden_dim_t, hidden_dim)
             self.ff_score = nn.Linear(hidden_dim, 1, bias=False) # dot product with trainable vector
+        
+        self.strategy = strategy
         
     def forward(self, target_h, source_hs):
         
@@ -103,7 +105,7 @@ class seq2seqAtt(nn.Module):
             target_h_rep = target_h.repeat(source_hs.size(0),1,1) # (1,batch,hidden_dim_s) -> (seq,batch,hidden_dim_s)
             concat_output = self.ff_concat(torch.cat((target_h_rep,source_hs),-1)) # (seq,batch,hidden_dim_s+hidden_dim_t) -> (seq,batch,hidden_dim)
             scores = self.ff_score(torch.tanh(concat_output)) # -> (seq,batch,1)
-            source_hs = source_hs.permute(1,0,2)  # (seq,batch,hidden_dim_s) -> (batch,seq,hidden_dim_s)
+            source_hs = source_hs.permute(1,0,2) # (seq,batch,hidden_dim_s) -> (batch,seq,hidden_dim_s)
                 
         scores = scores.squeeze(dim=2) # (seq,batch,1) -> (seq,batch). We specify a dimension, because we don't want to squeeze the batch dim in case batch size is equal to 1
         norm_scores = torch.softmax(scores,0) # sequence-wise normalization
@@ -113,13 +115,28 @@ class seq2seqAtt(nn.Module):
         
         return ct
 
+    def forward(self,target_h,source_hs):
+        target_h_rep = target_h.repeat(source_hs.size(0),1,1) # (1,batch,feat) -> (seq,batch,feat)
+        concat_output = self.ff_concat(torch.cat((target_h_rep,source_hs),-1)) # source_hs is (seq,batch,feat)
+        scores = self.ff_score(torch.tanh(concat_output)) # (seq,batch,feat) -> (seq,batch,1)
+        scores = scores.squeeze(dim=2) # (seq,batch,1) -> (seq,batch). dim=2 because we don't want to squeeze the batch dim if batch size = 1
+        norm_scores = torch.softmax(scores,0)
+        source_hs_p = source_hs.permute((2,0,1)) # (seq,batch,feat) -> (feat,seq,batch)
+        weighted_source_hs = (norm_scores * source_hs_p) # (seq,batch) * (feat,seq,batch) (* checks from right to left that the dimensions match)
+        ct = torch.sum(weighted_source_hs.permute((1,2,0)),0,keepdim=True) # (feat,seq,batch) -> (seq,batch,feat) -> (1,batch,feat); keepdim otherwise sum squeezes 
+        return ct
+
 
 class Decoder(nn.Module):
     '''to be used one timestep at a time
        https://pytorch.org/docs/stable/nn.html#gru'''
     
-    def __init__(self, vocab_size, embedding_dim, hidden_dim_t, hidden_dim_s, num_layers, padding_idx, dropout):
+    def __init__(self, vocab_size, embedding_dim, hidden_dim_t, hidden_dim_s, num_layers, bidirectional, padding_idx, dropout):
         super(Decoder, self).__init__()
+        
+        if bidirectional:
+            hidden_dim_s = hidden_dim_s*2
+        
         self.embedding = nn.Embedding(vocab_size, embedding_dim, padding_idx)
         self.dropout_1 = nn.Dropout(dropout)
         self.rnn = nn.GRU(embedding_dim, hidden_dim_t, num_layers, dropout=dropout)
@@ -129,7 +146,7 @@ class Decoder(nn.Module):
     def forward(self, input, source_context, h):
         word_vector = self.embedding(input) # (1,batch) -> (1,batch,embedding_dim)
         word_vector = self.dropout_1(word_vector)
-        h_top, h_all = self.rnn(word_vector, h) # output is (1,batch,hidden_dim_t), (num_layers,batch,hidden_dim_t); ([0]: top stacking RNN layer, [1]: all stacking RNN layers)
+        h_top, h_all = self.rnn(word_vector, h) # output is (1,batch,hidden_dim_t), (num_layers,batch,hidden_dim_t); ([0]: top stacking RNN layer for all timesteps, [1]: all stacking RNN layers for the last timestep)
         h_tilde = torch.tanh(self.ff_concat(torch.cat((source_context, h_top), -1))) # (1,batch,hidden_dim_s+hidden_dim_t) -> (1,batch,hidden_dim_t). This corresponds to Eq. 5 in Luong et al. 2015
         prediction = self.final(h_tilde) # (1,batch,feat) -> (1,batch,vocab) note that the prediction is not normalized at this time (it is just a vector of logits)
         
@@ -175,12 +192,12 @@ class seq2seqModel(nn.Module):
         
         self.device = torch.device('cuda' if torch.cuda.is_available() else 'cpu')
         
-        self.encoder = Encoder(self.max_source_idx+1, self.embedding_dim_s, self.hidden_dim_s, self.num_layers,self.bidirectional, self.padding_token, self.dropout).to(self.device)
+        self.encoder = Encoder(self.max_source_idx+1, self.embedding_dim_s, self.hidden_dim_s, self.num_layers, self.bidirectional, self.padding_token, self.dropout).to(self.device)
         
-        self.decoder = Decoder(self.max_target_idx+1, self.embedding_dim_t, self.hidden_dim_t, self.hidden_dim_s, self.num_layers, self.padding_token, self.dropout).to(self.device)
+        self.decoder = Decoder(self.max_target_idx+1, self.embedding_dim_t, self.hidden_dim_t, self.hidden_dim_s, self.num_layers, self.bidirectional, self.padding_token, self.dropout).to(self.device)
         
         if not self.att_strategy == 'none':
-            self.att_mech = seq2seqAtt(self.hidden_dim_att, self.hidden_dim_s, self.hidden_dim_t, self.att_strategy).to(self.device)
+            self.att_mech = seq2seqAtt(self.hidden_dim_att, self.hidden_dim_s, self.hidden_dim_t, self.att_strategy, self.bidirectional).to(self.device)
     
     def my_pad(self, my_list):
         '''my_list looks like: [(seq_s_1,seq_t_1),...,(seq_s_n,seq_t_n)], where n is batch size.
