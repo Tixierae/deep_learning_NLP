@@ -51,23 +51,30 @@ vocab_target_inv = {v:k for k,v in vocab_target.items()} # index -> word
 
 print('data loaded')
     
-training_set = Dataset(pairs_train)
-test_set = Dataset(pairs_test)
+training_set = Dataset(pairs_train[:5000])
+test_set = Dataset(pairs_test[:500])
 
 print('data prepared')
 
 num_layers = 1
-bidirectional = False
+bidirectional = True
 
 for att_strategy in ['dot','general','concat']:
+    
+    hidden_dim_s = 30	
+    
+    if att_strategy == 'dot':
+        hidden_dim_t = 2*hidden_dim_s
+    else:
+        hidden_dim_t = hidden_dim_s
     
     model = seq2seqModel(vocab_s = vocab_source,
                          source_language = 'english',
                          vocab_t_inv = vocab_target_inv,
                          embedding_dim_s = 40,
                          embedding_dim_t = 40,
-                         hidden_dim_s = 30,
-                         hidden_dim_t = 30,
+                         hidden_dim_s = hidden_dim_s,
+                         hidden_dim_t = hidden_dim_t,
                          hidden_dim_att = 20,
                          num_layers = num_layers,
                          bidirectional = bidirectional,
@@ -79,7 +86,7 @@ for att_strategy in ['dot','general','concat']:
                          max_size = 30, # for the decoder, in prediction mode
                          dropout = 0)
 
-    model.fit(training_set, test_set, lr=0.002, batch_size=64, n_epochs=200, patience=5)
+    model.fit(training_set, test_set, lr=0.001, batch_size=64, n_epochs=1, patience=5)
 
     model_name = '_'.join([att_strategy, str(num_layers), str(bidirectional)])
     model.save(path_to_save, model_name)

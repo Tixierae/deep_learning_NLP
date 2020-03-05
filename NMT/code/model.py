@@ -115,17 +115,6 @@ class seq2seqAtt(nn.Module):
         
         return ct
 
-    def forward(self,target_h,source_hs):
-        target_h_rep = target_h.repeat(source_hs.size(0),1,1) # (1,batch,feat) -> (seq,batch,feat)
-        concat_output = self.ff_concat(torch.cat((target_h_rep,source_hs),-1)) # source_hs is (seq,batch,feat)
-        scores = self.ff_score(torch.tanh(concat_output)) # (seq,batch,feat) -> (seq,batch,1)
-        scores = scores.squeeze(dim=2) # (seq,batch,1) -> (seq,batch). dim=2 because we don't want to squeeze the batch dim if batch size = 1
-        norm_scores = torch.softmax(scores,0)
-        source_hs_p = source_hs.permute((2,0,1)) # (seq,batch,feat) -> (feat,seq,batch)
-        weighted_source_hs = (norm_scores * source_hs_p) # (seq,batch) * (feat,seq,batch) (* checks from right to left that the dimensions match)
-        ct = torch.sum(weighted_source_hs.permute((1,2,0)),0,keepdim=True) # (feat,seq,batch) -> (seq,batch,feat) -> (1,batch,feat); keepdim otherwise sum squeezes 
-        return ct
-
 
 class Decoder(nn.Module):
     '''to be used one timestep at a time
