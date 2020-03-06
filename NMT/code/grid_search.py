@@ -51,15 +51,15 @@ vocab_target_inv = {v:k for k,v in vocab_target.items()} # index -> word
 
 print('data loaded')
     
-training_set = Dataset(pairs_train[:5000])
-test_set = Dataset(pairs_test[:500])
+training_set = Dataset(pairs_train)
+test_set = Dataset(pairs_test)
 
 print('data prepared')
 
 num_layers = 1
-bidirectional = True
+bidirectional = False
 
-for att_strategy in ['dot','general','concat']:
+for att_strategy in ['none']:#['dot','general','concat']:
     
     hidden_dim_s = 30	
     
@@ -86,7 +86,7 @@ for att_strategy in ['dot','general','concat']:
                          max_size = 30, # for the decoder, in prediction mode
                          dropout = 0)
 
-    model.fit(training_set, test_set, lr=0.001, batch_size=64, n_epochs=1, patience=5)
+    model.fit(training_set, test_set, lr=0.002, batch_size=64, n_epochs=200, patience=5)
 
     model_name = '_'.join([att_strategy, str(num_layers), str(bidirectional)])
     model.save(path_to_save, model_name)

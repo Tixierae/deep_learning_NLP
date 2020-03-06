@@ -1,0 +1,17 @@
+{
+    "source_language": "english",
+    "embedding_dim_s": 40,
+    "embedding_dim_t": 40,
+    "hidden_dim_s": 30,
+    "hidden_dim_t": 30,
+    "hidden_dim_att": 20,
+    "num_layers": 1,
+    "bidirectional": false,
+    "att_strategy": "none",
+    "padding_token": 0,
+    "oov_token": 1,
+    "sos_token": 2,
+    "eos_token": 3,
+    "max_size": 30,
+    "dropout": 0
+}
