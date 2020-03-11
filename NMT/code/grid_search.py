@@ -59,9 +59,9 @@ print('data prepared')
 num_layers = 1
 bidirectional = False
 
-for att_strategy in ['none']:#['dot','general','concat']:
+for att_strategy in ['dot','general','concat']: #['none']:
     
-    hidden_dim_s = 30	
+    hidden_dim_s = 30   
     
     if att_strategy == 'dot':
         hidden_dim_t = 2*hidden_dim_s
@@ -86,7 +86,7 @@ for att_strategy in ['none']:#['dot','general','concat']:
                          max_size = 30, # for the decoder, in prediction mode
                          dropout = 0)
 
-    model.fit(training_set, test_set, lr=0.002, batch_size=64, n_epochs=200, patience=5)
+    model.fit(training_set, test_set, lr=0.002, batch_size=64, n_epochs=1, patience=5)
 
     model_name = '_'.join([att_strategy, str(num_layers), str(bidirectional)])
     model.save(path_to_save, model_name)

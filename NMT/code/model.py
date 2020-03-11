@@ -155,7 +155,7 @@ class seq2seqModel(nn.Module):
         self.vocab_s = vocab_s
         self.source_language = source_language
         self.vocab_t_inv = vocab_t_inv
-        self.embedding_dim_s = embedding_dim_s # if bidirectional, this will be the number of features AFTER concatenating the forward and backward RNNs!
+        self.embedding_dim_s = embedding_dim_s
         self.embedding_dim_t = embedding_dim_t
         self.hidden_dim_s = hidden_dim_s
         self.hidden_dim_t = hidden_dim_t
@@ -186,6 +186,7 @@ class seq2seqModel(nn.Module):
         self.decoder = Decoder(self.max_target_idx+1, self.embedding_dim_t, self.hidden_dim_t, self.hidden_dim_s, self.num_layers, self.bidirectional, self.padding_token, self.dropout).to(self.device)
         
         if not self.att_strategy == 'none':
+            print(self.att_strategy)
             self.att_mech = seq2seqAtt(self.hidden_dim_att, self.hidden_dim_s, self.hidden_dim_t, self.att_strategy, self.bidirectional).to(self.device)
     
     def my_pad(self, my_list):
@@ -227,6 +228,7 @@ class seq2seqModel(nn.Module):
         while True:
             
             if not self.att_strategy == 'none':
+                print(self.att_strategy)
                 source_context = self.att_mech(target_h_top, source_hs) # (1,batch,hidden_dim_s)
             else:
                 source_context = source_hs[-1,:,:].unsqueeze(0) # (1,batch,hidden_dim_s) last hidden state of encoder
