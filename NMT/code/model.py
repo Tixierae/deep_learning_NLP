@@ -84,34 +84,44 @@ class seq2seqAtt(nn.Module):
         
     def forward(self, target_h, source_hs):
         
-        if self.strategy in ['dot','general']:
-            source_hs = source_hs.permute(1,0,2) # (seq,batch,hidden_dim_s) -> (batch,seq,hidden_dim_s)
+        # if self.strategy in ['dot','general']:
+            # source_hs = source_hs.permute(1,0,2) # (seq,batch,hidden_dim_s) -> (batch,seq,hidden_dim_s)
         
-        if self.strategy == 'dot':
-            # with this strategy, no trainable parameters are involved
-            # here, feat = hidden_dim_t = hidden_dim_s
-            target_h = target_h.permute(1,2,0) # (1,batch,feat) -> (batch,feat,1)
-            dot_product = torch.matmul(source_hs, target_h) # (batch,seq,feat) * (batch,feat,1) -> (batch,seq,1)
-            scores = dot_product.permute(1,0,2) # -> (seq,batch,1)
+        # if self.strategy == 'dot':
+            # # with this strategy, no trainable parameters are involved
+            # # here, feat = hidden_dim_t = hidden_dim_s
+            # target_h = target_h.permute(1,2,0) # (1,batch,feat) -> (batch,feat,1)
+            # dot_product = torch.matmul(source_hs, target_h) # (batch,seq,feat) * (batch,feat,1) -> (batch,seq,1)
+            # scores = dot_product.permute(1,0,2) # -> (seq,batch,1)
             
-        elif self.strategy == 'general':
-            target_h = target_h.permute(1,0,2) # (1,batch,hidden_dim_t) -> (batch,1,hidden_dim_t)
-            output = self.ff_general(target_h) #  -> (batch,1,hidden_dim_s)
-            output = output.permute(0,2,1) # -> (batch,hidden_dim_s,1)
-            dot_product = torch.matmul(source_hs, output) # (batch,seq,hidden_dim_s) * (batch,hidden_dim_s,1) -> (batch,seq,1)
-            scores = dot_product.permute(1,0,2) # -> (seq,batch,1)
+        # elif self.strategy == 'general':
+            # target_h = target_h.permute(1,0,2) # (1,batch,hidden_dim_t) -> (batch,1,hidden_dim_t)
+            # output = self.ff_general(target_h) #  -> (batch,1,hidden_dim_s)
+            # output = output.permute(0,2,1) # -> (batch,hidden_dim_s,1)
+            # dot_product = torch.matmul(source_hs, output) # (batch,seq,hidden_dim_s) * (batch,hidden_dim_s,1) -> (batch,seq,1)
+            # scores = dot_product.permute(1,0,2) # -> (seq,batch,1)
             
-        elif self.strategy == 'concat':
-            target_h_rep = target_h.repeat(source_hs.size(0),1,1) # (1,batch,hidden_dim_s) -> (seq,batch,hidden_dim_s)
-            concat_output = self.ff_concat(torch.cat((target_h_rep,source_hs),-1)) # (seq,batch,hidden_dim_s+hidden_dim_t) -> (seq,batch,hidden_dim)
-            scores = self.ff_score(torch.tanh(concat_output)) # -> (seq,batch,1)
-            source_hs = source_hs.permute(1,0,2) # (seq,batch,hidden_dim_s) -> (batch,seq,hidden_dim_s)
+        # elif self.strategy == 'concat':
+            # target_h_rep = target_h.repeat(source_hs.size(0),1,1) # (1,batch,hidden_dim_s) -> (seq,batch,hidden_dim_s)
+            # concat_output = self.ff_concat(torch.cat((target_h_rep,source_hs),-1)) # (seq,batch,hidden_dim_s+hidden_dim_t) -> (seq,batch,hidden_dim)
+            # scores = self.ff_score(torch.tanh(concat_output)) # -> (seq,batch,1)
+            # source_hs = source_hs.permute(1,0,2) # (seq,batch,hidden_dim_s) -> (batch,seq,hidden_dim_s)
                 
-        scores = scores.squeeze(dim=2) # (seq,batch,1) -> (seq,batch). We specify a dimension, because we don't want to squeeze the batch dim in case batch size is equal to 1
-        norm_scores = torch.softmax(scores,0) # sequence-wise normalization
-        source_hs_p = source_hs.permute((2,1,0)) # (batch,seq,hidden_dim_s) -> (hidden_dim_s,seq,batch)
-        weighted_source_hs = (norm_scores * source_hs_p) # (seq,batch) * (hidden_dim_s,seq,batch) -> (hidden_dim_s,seq,batch) (we use broadcasting here - the * operator checks from right to left that the dimensions match)
-        ct = torch.sum(weighted_source_hs.permute((1,2,0)),0,keepdim=True) # (hidden_dim_s,seq,batch) -> (seq,batch,hidden_dim_s) -> (1,batch,hidden_dim_s); we need keepdim as sum squeezes by default 
+        # scores = scores.squeeze(dim=2) # (seq,batch,1) -> (seq,batch). We specify a dimension, because we don't want to squeeze the batch dim in case batch size is equal to 1
+        # norm_scores = torch.softmax(scores,0) # sequence-wise normalization
+        # source_hs_p = source_hs.permute((2,1,0)) # (batch,seq,hidden_dim_s) -> (hidden_dim_s,seq,batch)
+        # weighted_source_hs = (norm_scores * source_hs_p) # (seq,batch) * (hidden_dim_s,seq,batch) -> (hidden_dim_s,seq,batch) (we use broadcasting here - the * operator checks from right to left that the dimensions match)
+        # ct = torch.sum(weighted_source_hs.permute((1,2,0)),0,keepdim=True) # (hidden_dim_s,seq,batch) -> (seq,batch,hidden_dim_s) -> (1,batch,hidden_dim_s); we need keepdim as sum squeezes by default 
+        
+        target_h_rep = target_h.repeat(source_hs.size(0),1,1) # (1,batch,feat) -> (seq,batch,feat)
+        concat_output = self.ff_concat(torch.cat((target_h_rep,source_hs),-1)) # source_hs is (seq,batch,feat)
+        scores = self.ff_score(torch.tanh(concat_output)) # (seq,batch,feat) -> (seq,batch,1)
+        scores = scores.squeeze(dim=2) # (seq,batch,1) -> (seq,batch). dim=2 because we don't want to squeeze the batch dim if batch size = 1
+        norm_scores = torch.softmax(scores,0)
+        source_hs_p = source_hs.permute((2,0,1)) # (seq,batch,feat) -> (feat,seq,batch)
+        weighted_source_hs = (norm_scores * source_hs_p) # (seq,batch) * (feat,seq,batch) (* checks from right to left that the dimensions match)
+        ct = torch.sum(weighted_source_hs.permute((1,2,0)),0,keepdim=True) # (feat,seq,batch) -> (seq,batch,feat) -> (1,batch,feat); keepdim otherwise sum squeezes 
+
         
         return ct
 
@@ -186,7 +196,6 @@ class seq2seqModel(nn.Module):
         self.decoder = Decoder(self.max_target_idx+1, self.embedding_dim_t, self.hidden_dim_t, self.hidden_dim_s, self.num_layers, self.bidirectional, self.padding_token, self.dropout).to(self.device)
         
         if not self.att_strategy == 'none':
-            print(self.att_strategy)
             self.att_mech = seq2seqAtt(self.hidden_dim_att, self.hidden_dim_s, self.hidden_dim_t, self.att_strategy, self.bidirectional).to(self.device)
     
     def my_pad(self, my_list):
