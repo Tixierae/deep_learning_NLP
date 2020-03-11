@@ -63,11 +63,14 @@ for att_strategy in ['dot','general','concat']: #['none']:
     
     hidden_dim_s = 30   
     
-    if att_strategy == 'dot':
-        hidden_dim_t = 2*hidden_dim_s
+    if bidirectional:
+        if att_strategy == 'dot':
+            hidden_dim_t = 2*hidden_dim_s
+        else:
+            hidden_dim_t = hidden_dim_s
     else:
-        hidden_dim_t = hidden_dim_s
-    
+        hidden_dim_t = hidden_dim_s  
+
     model = seq2seqModel(vocab_s = vocab_source,
                          source_language = 'english',
                          vocab_t_inv = vocab_target_inv,
