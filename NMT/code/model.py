@@ -228,7 +228,6 @@ class seq2seqModel(nn.Module):
         while True:
             
             if not self.att_strategy == 'none':
-                print(self.att_strategy)
                 source_context = self.att_mech(target_h_top, source_hs) # (1,batch,hidden_dim_s)
             else:
                 source_context = source_hs[-1,:,:].unsqueeze(0) # (1,batch,hidden_dim_s) last hidden state of encoder
@@ -276,6 +275,11 @@ class seq2seqModel(nn.Module):
         patience_counter = 1
         patience_loss = 99999
         it_times = []
+        
+        # my fake code
+        for p in self.parameters():
+            if not p.requires_grad:
+                 print(p.name, p.data)
         
         for epoch in range(n_epochs):
             
